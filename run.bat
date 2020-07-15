@@ -1,0 +1,1 @@
+abaqus job=SW12 ask_delete=OFF standard_parallel=all cpus=4 interactive
