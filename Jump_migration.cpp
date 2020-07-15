@@ -15,7 +15,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
     int positioned;
     int possibilities[6];
     int r,r1,r2;
-    const int critical_time = 15; // pure random migration allowed for 15 days, then it is driven by the graft
+    const int critical_time = 5; // pure random migration allowed for 15 days, then it is driven by the graft
 	 
     position_occupied=0;
     positioned=0;
@@ -45,8 +45,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
             {
                 if (r1==0)  //move +x
                 {
-                    if (i_jump==LATTICE_X-1 || cell_jump[i_jump+1][j_jump][k_jump]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump+1, j_jump, k_jump))
+                    if (i_jump==LATTICE_X-1 || cell_jump[i_jump+1][j_jump][k_jump]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;
@@ -71,8 +70,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
                 else
                 if (r1==1) //move -x
                 {
-                    if (i_jump==0 || cell_jump[i_jump-1][j_jump][k_jump]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump-1, j_jump, k_jump))
+                    if (i_jump==0 || cell_jump[i_jump-1][j_jump][k_jump]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;
@@ -97,8 +95,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
                 else 
                 if (r1==2) //move +y
                 {
-                    if (j_jump==LATTICE_Y-1 || cell_jump[i_jump][j_jump+1][k_jump]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump, j_jump+1, k_jump))
+                    if (j_jump==LATTICE_Y-1 || cell_jump[i_jump][j_jump+1][k_jump]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;
@@ -122,8 +119,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
                 else 
                 if (r1==3) //move -y
                 {
-                    if (j_jump==0 || cell_jump[i_jump][j_jump-1][k_jump]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump, j_jump-1, k_jump))
+                    if (j_jump==0 || cell_jump[i_jump][j_jump-1][k_jump]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;
@@ -148,8 +144,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
                 else 
                 if (r1==4) //move +z
                 {
-                    if (k_jump==LATTICE_Z-1 || cell_jump[i_jump][j_jump][k_jump+1]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump, j_jump, k_jump+1))
+                    if (k_jump==LATTICE_Z-1 || cell_jump[i_jump][j_jump][k_jump+1]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;
@@ -174,8 +169,7 @@ void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, 
                 else 
                 if (r1==5) //move -z
                 {
-                    if (k_jump==0 || cell_jump[i_jump][j_jump][k_jump-1]!=0
-						|| !Neighbour_presence(cell_jump, i_jump, j_jump, k_jump, i_jump, j_jump, k_jump-1))
+                    if (k_jump==0 || cell_jump[i_jump][j_jump][k_jump-1]!=0)
                     {
                         position_occupied=position_occupied+1;
                         possibilities[r]=999;

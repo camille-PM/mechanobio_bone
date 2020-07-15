@@ -9,14 +9,13 @@ using namespace std;
 void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short age_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],float stimulus_dif[NUMBER_ELEMS], 
 	int element_local_min[NUMBER_ELEMS][3],int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z])
 {
+     
     /************************************************************
-        Randomly differentiates MSCs into new phentypes and picks cells for apoptosis
-		according to Lacroix & Prendergast mechanoregulation theory:
-			If Stimulus > 3               Fibrous tissue
-	        If 1 < Stimulus <= 3           Cartilage          
-	        If 0.53 < Stimulus <= 1        Inmature bone
-	        If 0.01 < Stimulus <= 0.53     Mature bone
-	        If 0 < Stimulus <= 0.01         Resorption
+        If Stimulus > 3               Fibrous tissue
+        If 1 < Stimulus <= 3           Cartilage          
+        If 0.53 < Stimulus <= 1        Inmature bone
+        If 0.01 < Stimulus <= 0.53     Mature bone
+        If 0 < Stimulus <= 0.01         Resorption
                        
     *************************************************************/ 
      
@@ -36,7 +35,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
     const int age_mature_cell=6;
     const int oxygen_diffusion_distance=10;
     
-    //srand((unsigned)time(0)); // not needed because already in main!
+    //srand((unsigned)time(0)); // not needed because already in main
     
     int chondrocytes_apoptosis;
     int fibroblasts_apoptosis;
@@ -84,7 +83,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                    if (lattice_point_element[i][j][k]==elem+1)
 	                    {
 	                        
-	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
+	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell  && Neighbour_presence(cells_dif, i,j,k)) // only cells along existing solid surface or tissue are counted
 	                        {
 	                            cells_to_differentiate=cells_to_differentiate+1;
 	                        }
@@ -110,7 +109,6 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	        }
 	        
 	        cells_to_differentiate=int(cells_to_differentiate*0.3);
-	        
 	        mature_osteoblasts_apoptosis=int(mature_osteoblasts*apoptosis_rate_osteoblasts);
 	        chondrocytes_apoptosis=int(chondrocytes*apoptosis_rate_chondrocytes);
 	        inmature_osteoblasts_apoptosis=int(inmature_osteoblasts*apoptosis_rate_osteoblasts);
@@ -204,7 +202,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                k=kmin+r3;
 	                if (lattice_point_element[i][j][k]==elem+1)
 	                {
-	                    if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
+	                    if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && Neighbour_presence(cells_dif, i,j,k))
 	                    {
 	                        cells_dif[i][j][k]=5;
 	                        age_dif[i][j][k]=1;
@@ -299,7 +297,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                k=kmin+r3;
 	                if (lattice_point_element[i][j][k]==elem+1)
 	                {
-	                    if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
+	                    if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && Neighbour_presence(cells_dif, i,j,k))
 	                    {
 	                        cells_dif[i][j][k]=4;
 	                        age_dif[i][j][k]=1;
@@ -391,15 +389,28 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                k=kmin+r3;
 	                if (lattice_point_element[i][j][k]==elem+1)
 	                { 
-                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
-                        {
-                        	cells_dif[i][j][k]=3;
-                        	age_dif[i][j][k]=1;
-                        	cells_differentiated=cells_differentiated+1;
-                        }                                       
+//						EC=1;       
+//	                    if (EC==1)  //There is oxygen
+//	                    {
+	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && Neighbour_presence(cells_dif, i,j,k))
+	                        {
+	                        	cells_dif[i][j][k]=3;
+	                        	age_dif[i][j][k]=1;
+	                        	cells_differentiated=cells_differentiated+1;
+	                        }
+//	                    }
+//	                    else
+//	                    {
+//	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && Neighbour_presence(cells_dif, i,j,k))
+//	                        {
+//	                            cells_dif[i][j][k]=4;
+//	                            age_dif[i][j][k]=1;
+//	                            cells_differentiated=cells_differentiated+1;
+//	                        }                    
+//	                    }                                       
 	                }
-	            }  
-	        } //end stimulus immature bone
+	            }             
+	        } //end stimulus inmature bone
 	                 
 	        /*********************************************************************************************************
 	                                             MATURE BONE         
@@ -442,8 +453,12 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                {
 	                    if (cells_dif[i][j][k]==4)
 	                    {
-                            cells_dif[i][j][k]=0;
-                            age_dif[i][j][k]=0;   
+	                        EC=1;
+	                        if (EC==1)
+	                        {
+	                            cells_dif[i][j][k]=0;
+	                            age_dif[i][j][k]=0;   
+	                        }
 	                        chondrocytes_removed=chondrocytes_removed+1;                    
 	                    }                                             
 	                }
@@ -478,14 +493,12 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                i=imin+r1;
 	                j=jmin+r2;
 	                k=kmin+r3;
-	                if (lattice_point_element[i][j][k]==elem+1)
-	                {
-                       if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
-                       {
-                          cells_dif[i][j][k]=2;
-                          age_dif[i][j][k]=1;
-                          cells_differentiated=cells_differentiated+1;
-                       }                                                                           
+	                if (lattice_point_element[i][j][k]==elem+1) {
+	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && Neighbour_presence(cells_dif, i,j,k)) {
+	                          cells_dif[i][j][k]=2;
+	                          age_dif[i][j][k]=1;
+	                          cells_differentiated=cells_differentiated+1;
+	                        }                                                                            
 	                }// end if         
 	            }             
 	        } //end stimulus mature osteoblasts
