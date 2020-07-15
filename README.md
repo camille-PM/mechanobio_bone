@@ -5,3 +5,4 @@ Baseline model adapted from Checa et al 2011: coupled agent-based model and fini
 Using Lacroix & Prendergast mechanoregulation theory
 
 Graft stimulatory effect on differentiation: 50% of the MSCs in graft presence differentiate into new phenotypes (vs. 30% in the absence of graft).
+Cell proliferation and migration are similar to the non-stimulated case.
