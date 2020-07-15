@@ -7,15 +7,16 @@
 using namespace std;
 
 void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short age_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],float stimulus_dif[NUMBER_ELEMS], 
-	int element_local_min[NUMBER_ELEMS][3],int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], bool graft[LATTICE_X][LATTICE_Y][LATTICE_Z])
+	int element_local_min[NUMBER_ELEMS][3],int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z])
 {
-     
     /************************************************************
-        If Stimulus > 3               Fibrous tissue
-        If 1 < Stimulus <= 3           Cartilage          
-        If 0.53 < Stimulus <= 1        Inmature bone
-        If 0.01 < Stimulus <= 0.53     Mature bone
-        If 0 < Stimulus <= 0.01         Resorption
+        Randomly differentiates MSCs into new phentypes and picks cells for apoptosis
+		according to Lacroix & Prendergast mechanoregulation theory:
+			If Stimulus > 3               Fibrous tissue
+	        If 1 < Stimulus <= 3           Cartilage          
+	        If 0.53 < Stimulus <= 1        Inmature bone
+	        If 0.01 < Stimulus <= 0.53     Mature bone
+	        If 0 < Stimulus <= 0.01         Resorption
                        
     *************************************************************/ 
      
@@ -29,8 +30,8 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
     int i2,j2,k2;
     int i3,j3,k3;
     int EC;
-    int cells_to_differentiate, cells_to_differentiate_bone;
-    int cells_differentiated, cells_differentiated_bone;
+    int cells_to_differentiate;
+    int cells_differentiated;
     int inmature_osteoblasts,mature_osteoblasts,chondrocytes,fibroblasts;
     const int age_mature_cell=6;
     const int oxygen_diffusion_distance=10;
@@ -54,9 +55,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
     for (elem=0;elem<NUMBER_ELEMS;elem++)
     {
         cells_to_differentiate=0;
-        cells_to_differentiate_bone=0;
         cells_differentiated=0;
-        cells_differentiated_bone=0;
 
         mature_osteoblasts=0;
         inmature_osteoblasts=0;
@@ -87,10 +86,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                        
 	                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
 	                        {
-	                        	if (stimulus_dif[elem]<=1 && graft[i][j][k]) // in bone stimulus and within graft presence: more differentiation
-	                            	cells_to_differentiate_bone=cells_to_differentiate_bone+1;
-	                            else
-	                            	cells_to_differentiate=cells_to_differentiate+1;
+	                            cells_to_differentiate=cells_to_differentiate+1;
 	                        }
 	                        if (cells_dif[i][j][k]==2)
 	                        {
@@ -114,7 +110,6 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	        }
 	        
 	        cells_to_differentiate=int(cells_to_differentiate*0.3);
-	        cells_to_differentiate_bone=int(cells_to_differentiate_bone*0.5);
 	        
 	        mature_osteoblasts_apoptosis=int(mature_osteoblasts*apoptosis_rate_osteoblasts);
 	        chondrocytes_apoptosis=int(chondrocytes*apoptosis_rate_chondrocytes);
@@ -384,7 +379,8 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                }
 	            }
 	
-	            //CELL DIFFERENTIATION: without graft
+	
+	            //CELL DIFFERENTIATION
 	            while (cells_differentiated<cells_to_differentiate)
 	            {
 	                r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
@@ -395,35 +391,15 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                k=kmin+r3;
 	                if (lattice_point_element[i][j][k]==elem+1)
 	                { 
-                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && !graft[i][j][k])
-                        {
-                            cells_dif[i][j][k]=3;
-                            age_dif[i][j][k]=1;
-                            cells_differentiated=cells_differentiated+1;
-                        }
-	                }
-	            }
-	            
-	            //CELL DIFFERENTIATION: with graft
-				while (cells_differentiated_bone<cells_to_differentiate_bone)
-	            {
-	                r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-	                r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-	                r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
-	                i=imin+r1;
-	                j=jmin+r2;
-	                k=kmin+r3;
-	                if (lattice_point_element[i][j][k]==elem+1)
-	                { 
-                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && graft[i][j][k])
+                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
                         {
                         	cells_dif[i][j][k]=3;
                         	age_dif[i][j][k]=1;
-                        	cells_differentiated_bone=cells_differentiated_bone+1;
-                        }
+                        	cells_differentiated=cells_differentiated+1;
+                        }                                       
 	                }
-	            }               
-	        } //end stimulus inmature bone
+	            }  
+	        } //end stimulus immature bone
 	                 
 	        /*********************************************************************************************************
 	                                             MATURE BONE         
@@ -466,12 +442,8 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                {
 	                    if (cells_dif[i][j][k]==4)
 	                    {
-	                        EC=1;
-	                        if (EC==1)
-	                        {
-	                            cells_dif[i][j][k]=0;
-	                            age_dif[i][j][k]=0;   
-	                        }
+                            cells_dif[i][j][k]=0;
+                            age_dif[i][j][k]=0;   
 	                        chondrocytes_removed=chondrocytes_removed+1;                    
 	                    }                                             
 	                }
@@ -497,7 +469,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                }
 	            }
 	     
-	            //CELL DIFFERENTIATION: without graft
+	            //CELL DIFFERENTIATION
 	            while (cells_differentiated<cells_to_differentiate)
 	            {
 	                r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
@@ -507,35 +479,15 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 	                j=jmin+r2;
 	                k=kmin+r3;
 	                if (lattice_point_element[i][j][k]==elem+1)
-	                { 
-                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && !graft[i][j][k])
-                        {
-                            cells_dif[i][j][k]=2;
-                            age_dif[i][j][k]=1;
-                            cells_differentiated=cells_differentiated+1;
-                        }
-	                }
-	            }
-	            
-	            //CELL DIFFERENTIATION: with graft
-				while (cells_differentiated_bone<cells_to_differentiate_bone)
-	            {
-	                r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-	                r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-	                r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
-	                i=imin+r1;
-	                j=jmin+r2;
-	                k=kmin+r3;
-	                if (lattice_point_element[i][j][k]==elem+1)
-	                { 
-                        if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell && graft[i][j][k])
-                        {
-                        	cells_dif[i][j][k]=2;
-                        	age_dif[i][j][k]=1;
-                        	cells_differentiated_bone=cells_differentiated_bone+1;
-                        }
-	                }
-	            }            
+	                {
+                       if (cells_dif[i][j][k]==1 && age_dif[i][j][k]>=age_mature_cell)
+                       {
+                          cells_dif[i][j][k]=2;
+                          age_dif[i][j][k]=1;
+                          cells_differentiated=cells_differentiated+1;
+                       }                                                                           
+	                }// end if         
+	            }             
 	        } //end stimulus mature osteoblasts
 	
 	        /*********************************************************************************************************

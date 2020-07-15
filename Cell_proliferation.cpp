@@ -6,8 +6,13 @@
 
 using namespace std;
 
+/*****************************************************************************
+	Proliferates cells (randomly picked) according to Lacroix & Prendergasr 
+	mechanoregulation values.
+*****************************************************************************/
+
 void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_prol[LATTICE_X][LATTICE_Y][LATTICE_Z],int element_local_min [NUMBER_ELEMS][3],
-	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS], bool graft[LATTICE_X][LATTICE_Y][LATTICE_Z])
+	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS])
 {
     int elem, elem2;
     int imin,imax,jmin,jmax,kmin,kmax;
@@ -21,7 +26,7 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
         
     // Shuffle the elements to look them over in a random way (should not have a big impact though)
     int* elements = new int[NUMBER_ELEMS];
-    for (elem=0;elem<NUMBER_ELEMS;elem++) {
+    for (elem=0;elem<NUMBER_ELEMS;elem++){
     	elements[elem] = elem;
 	}
 	int temp;
@@ -32,7 +37,8 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 		elements[j] = temp;
 	}
 	
-    for (elem2=0;elem2<NUMBER_ELEMS;elem2++) {
+    for (elem2=0;elem2<NUMBER_ELEMS;elem2++) 
+    {
 //        cout << "Iter " << elem2 << endl;
 		elem = elements[elem2];
 //        cout << "Element " << elem << endl;
@@ -49,15 +55,18 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 		MSCs=fibroblasts=chondrocytes=inmature_osteoblasts=mature_osteoblasts=0;
 		proliferated=0;
 		
-		for (i=imin;i<=imax;i++) {
-			for (j=jmin;j<=jmax;j++) {
-				for (k=kmin;k<=kmax;k++) {
-					if (lattice_point_element[i][j][k]==elem+1) {
-						switch (cells_prol[i][j][k]) {
+		for (i=imin;i<=imax;i++)
+		{
+			for (j=jmin;j<=jmax;j++)
+			{
+				for (k=kmin;k<=kmax;k++)
+				{
+					if (lattice_point_element[i][j][k]==elem+1)
+					{
+						switch (cells_prol[i][j][k])
+						{
 							case 1:
-								if(graft[i][j][k]) { // check if in graft presence
-									MSCs=MSCs+1;
-								}
+								MSCs=MSCs+1;
 								break;
 							case 2:
 								mature_osteoblasts=mature_osteoblasts+1;
@@ -88,7 +97,8 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 					 Proliferate MSCs
 			******************************************/
 
-			while (proliferated<MSCs_to_prol) {
+			while (proliferated<MSCs_to_prol)
+			{
 			    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
 		        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
 		        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
@@ -96,7 +106,7 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 				j=jmin+r2;
 				k=kmin+r3;
 				
-				if (lattice_point_element[i][j][k]==elem+1 && graft[i][j][k]) // if still in same element and in graft presence
+				if (lattice_point_element[i][j][k]==elem+1) // if still in same element
 				{
 					if (cells_prol[i][j][k]==1) // if it is an MSC here
 					{
@@ -114,8 +124,10 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 			/******************************************
 				Proliferate fibroblasts 
 			******************************************/
-			if (stimulus>3.0) {
-				while (proliferated<fibroblasts_to_prol) {
+			if (stimulus>3.0)
+			{
+				while (proliferated<fibroblasts_to_prol)
+				{
 				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
 			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
 			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
@@ -139,8 +151,10 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 			/******************************************
 				Proliferate chondrocytes
 			******************************************/
-			if (stimulus<=3.0 && stimulus>1.0) {
-				while (proliferated<chondrocytes_to_prol) {
+			if (stimulus<=3.0 && stimulus>1.0)
+			{
+				while (proliferated<chondrocytes_to_prol)
+				{
 				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
 			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
 			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
@@ -148,8 +162,10 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 					j=jmin+r2;
 					k=kmin+r3;
 					  
-					if (lattice_point_element[i][j][k]==elem+1) {
-						if (cells_prol[i][j][k]==4) {
+					if (lattice_point_element[i][j][k]==elem+1)
+					{
+						if (cells_prol[i][j][k]==4)
+						{
 							cell=4;
 							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
 							proliferated=proliferated+1;                   
@@ -163,8 +179,10 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 			/*******************************************
 				Proliferate inmature osteoblasts
 			*******************************************/
-			if (stimulus>0.53 && stimulus<=1.0) {
-				while (proliferated<inmature_osteoblasts_to_prol) {
+			if (stimulus>0.53 && stimulus<=1.0)
+			{
+				while (proliferated<inmature_osteoblasts_to_prol)
+				{
 				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
 			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
 			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
@@ -172,8 +190,10 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 					j=jmin+r2;
 					k=kmin+r3;
 					  
-					if (lattice_point_element[i][j][k]==elem+1) {
-						if (cells_prol[i][j][k]==3) {
+					if (lattice_point_element[i][j][k]==elem+1)
+					{
+						if (cells_prol[i][j][k]==3)
+						{
 							cell=3;
 							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
 							proliferated=proliferated+1;                   
@@ -187,16 +207,20 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 			/******************************************
 				Proliferate mature osteoblasts
 			******************************************/
-			if (stimulus>0.01 && stimulus<=0.53) {
-				while (proliferated<mature_osteoblasts_to_prol) {
+			if (stimulus>0.01 && stimulus<=0.53)
+			{
+				while (proliferated<mature_osteoblasts_to_prol)
+				{
 				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
 			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
 			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
 					i=imin+r1;
 					j=jmin+r2;
 					k=kmin+r3;
-					if (lattice_point_element[i][j][k]==elem+1) {
-						if (cells_prol[i][j][k]==2) {
+					if (lattice_point_element[i][j][k]==elem+1)
+					{
+						if (cells_prol[i][j][k]==2)
+						{
 							cell=2;
 							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
 							proliferated=proliferated+1;                   
@@ -209,10 +233,14 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
      
 
     //Change all the new cells to cell number  
-    for (i=0;i<LATTICE_X;i++) {
-        for (j=0;j<LATTICE_Y;j++) {
-            for(k=0;k<LATTICE_Z;k++) {
-                switch (cells_prol[i][j][k]) {
+    for (i=0;i<LATTICE_X;i++)
+    {
+        for (j=0;j<LATTICE_Y;j++)
+        {
+            for(k=0;k<LATTICE_Z;k++)
+            {
+                switch (cells_prol[i][j][k])
+                {
                     case 6:
                         cells_prol[i][j][k]=1;
                         break;

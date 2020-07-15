@@ -1,9 +1,3 @@
-/************************************************************
-    Algorithm to migrate cells
-        7 jumps each iteration
-        (30 micrometers/hour)
-        MSCs only (fibroblasts possible)
-************************************************************/
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -15,8 +9,11 @@
 
 using namespace std;
 
-void Cell_migration(char cells_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], int lattice_points_element[LATTICE_X][LATTICE_Y][LATTICE_Z],
-	bool graft[LATTICE_X][LATTICE_Y][LATTICE_Z], int td)
+/************************************************************
+    Migrates cells (MSCs and/or fibroblasts)
+************************************************************/
+
+void Cell_migration(char cells_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], int lattice_points_element[LATTICE_X][LATTICE_Y][LATTICE_Z])
 {
     int i,j,k;
     int cell_type;
@@ -55,7 +52,7 @@ void Cell_migration(char cells_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], short
 		    if (lattice_points_element[i][j][k]!=0 || ((k<101 || k>=LATTICE_Z-101) && (pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(75,2)))) {  
 		        //cout<<"i,j,k: "<<i<<" ,"<<j<<" ,"<<k<<endl;
 		        cell_type=1;
-		        Jump_migration(cells_migration,i,j,k,age_migration,cell_type,lattice_points_element,graft,td);
+		        Jump_migration(cells_migration,i,j,k,age_migration,cell_type,lattice_points_element);
 		        migrated += 1;
 		        //system("PAUSE");
 		    }
