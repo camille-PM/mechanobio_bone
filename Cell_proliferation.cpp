@@ -6,13 +6,8 @@
 
 using namespace std;
 
-/*****************************************************************************
-	Proliferates cells (randomly picked) according to Lacroix & Prendergasr 
-	mechanoregulation values.
-*****************************************************************************/
-
 void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_prol[LATTICE_X][LATTICE_Y][LATTICE_Z],int element_local_min [NUMBER_ELEMS][3],
-	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS])
+	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS], int iter)
 {
     int elem, elem2;
     int imin,imax,jmin,jmax,kmin,kmax;
@@ -86,8 +81,12 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 			}
 		}
 			 
-			MSCs_to_prol=int(MSCs*0.6);
-//			cout << "MSCs to proliferate: " << MSCs_to_prol << endl;
+			if (iter < ACTIVITY_MAX) {
+				MSCs_to_prol=int(MSCs*0.6);
+			}
+			else {
+				MSCs_to_prol=0;
+			}
 			fibroblasts_to_prol=int(fibroblasts*0.55);
 			chondrocytes_to_prol=int(chondrocytes*0.20);
 			inmature_osteoblasts_to_prol=int(inmature_osteoblasts*0.3);

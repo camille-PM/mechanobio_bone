@@ -5,6 +5,7 @@ constexpr int NUMBER_NODES = 189810;
 constexpr int NUMBER_ELEMS = 126888; // elements in the GRAFT/CALLUS
 constexpr int NUMBER_ITERATIONS = 180; 
 constexpr int NODES_PER_ELEM = 10; // number of nodes per element in Abaqus model (for callus/graft part)
+constexpr int ACTIVITY_MAX = 15; // no migration & proliferation after 15 days
 
 int nrand(int n);
 
@@ -20,11 +21,12 @@ void Initialize_lattice(char initial_lattice[LATTICE_X][LATTICE_Y][LATTICE_Z], s
 void Read_stimulus(float Stimulus_read[NUMBER_ELEMS],int elements_read[NUMBER_ELEMS][NODES_PER_ELEM]);
 
 void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short age_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],float stimulus_dif[NUMBER_ELEMS], 
-	int element_local_min[NUMBER_ELEMS][3],int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z]);
+	int element_local_min[NUMBER_ELEMS][3],int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], bool graft[LATTICE_X][LATTICE_Y][LATTICE_Z]);
 void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_prol[LATTICE_X][LATTICE_Y][LATTICE_Z],int element_local_min [NUMBER_ELEMS][3],
-	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS]);
+	int element_local_max[NUMBER_ELEMS][3],int lattice_point_element[LATTICE_X][LATTICE_Y][LATTICE_Z], float stimulus_prol[NUMBER_ELEMS], int iter);
 void Cell_mitosis(char cells_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z], int i1, int j1, int k1, int cellnumber,short age_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z]);
-void Cell_migration(char cells_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], int lattice_points_element[LATTICE_X][LATTICE_Y][LATTICE_Z]);
+void Cell_migration(char cells_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], short age_migration[LATTICE_X][LATTICE_Y][LATTICE_Z], 
+	int lattice_points_element[LATTICE_X][LATTICE_Y][LATTICE_Z]);
 void Jump_migration(char cell_jump[LATTICE_X][LATTICE_Y][LATTICE_Z],int i_jump, int j_jump, int k_jump,short age_jump[LATTICE_X][LATTICE_Y][LATTICE_Z], 
 	int cell_number, int lattice_points_element[LATTICE_X][LATTICE_Y][LATTICE_Z]);
 
