@@ -6,11 +6,12 @@
 #include <cmath>
 #include "header.h"
 
-// For a new model: 
-//       header.h: LATTICE_X, LATTICE_Y, LATTICE_Z, NUMBER_ELEMS, NUMBER_NODES, NUMBER_ITERATIONS, NODES_PER_ELEM
-//       Initial cell seeding (Initialize_lattice.cpp, main.cpp)
-//       Update_model.cpp: loads & BCs + file names; min_elem
-//       Read_stimulus: file name
+// For a new model: adapt LATTICE_X, LATTICE_Y, LATTICE_Z, NUMBER_ELEMS, NUMBER_NODES, NUMBER_ITERATIONS, NODES_PER_ELEM (header.h); min_elem_callus (update_model.cpp)
+//       Initial cell seeding (Initialize_lattice.cpp and main.cpp)
+//       Update_model.cpp : last lines with loads & BCs + file names (in Read_stimulus as well)
+// 		 Calculate_lattice.cpp : adapt Global_min and Global_max if necessary (if boundaries different between FE model and 3D lattice)
+// 		 Cell_proliferation.cpp & cell_differentiation.cpp : possibly adaptations to remove some elements from the proliferation process / for different mechanoregulation levels
+//		 Write_raw_lattice_file: ROI written in raw file (if not full lattice)
 
 using namespace std;
 
@@ -81,6 +82,23 @@ int main()
         }
     }
 
+	// Graft presence description
+	bool (*graft_presence)[LATTICE_Y][LATTICE_Z] = new bool[LATTICE_X][LATTICE_Y][LATTICE_Z];
+	for (int i=0; i<LATTICE_X; i++) {
+		for (int j=0; j<LATTICE_Y; j++) {
+			for (int k=0; k<LATTICE_Z; k++) {
+				if (pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(100,2) &&
+					pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)>=pow(50,2) && 
+					k>=100 && k<LATTICE_Z-100) {
+					graft_presence[i][j][k] = true;
+				}
+				else {
+					graft_presence[i][j][k] = false;
+				}
+			}
+		}
+	}
+
     /**************************************************************************************
                                               Read node file
     *****************************************************************************************/
@@ -122,6 +140,7 @@ int main()
     *****************************************************************************************/
     cout<<"Write results file"<<endl;
     iteration=999;
+//    Write_lattice_file_gnuplot(lattice,iteration);
     Write_raw_lattice_file(lattice, iteration); // full 3D model as binary file    
     
     //system("PAUSE");
@@ -148,18 +167,18 @@ int main()
                                                Proliferation
         *****************************************************************************************/   
         cout<<"Cell proliferation"<<endl;
-        Cell_proliferation(lattice,age_cells,element_local_min,element_local_max,lattice_point_element,stimulus); 
+        Cell_proliferation(lattice,age_cells,element_local_min,element_local_max,lattice_point_element,stimulus,graft_presence, iteration); 
             
         /**************************************************************************************
                                                Migration
         *****************************************************************************************/   
         cout<<"Cell migration"<<endl;
-        Cell_migration(lattice,age_cells,lattice_point_element);
+        Cell_migration(lattice,age_cells,lattice_point_element, graft_presence, iteration);
         
         /**************************************************************************************
                                      Write lattice content into files
         *****************************************************************************************/
-        cout<<"Write results files"<<endl;
+        cout<<"Write results file"<<endl;
         Write_raw_lattice_file(lattice, iteration); // full 3D model as binary file
         
         /**************************************************************************************
@@ -205,6 +224,7 @@ int main()
 	delete[] lattice;
 	delete[] age_cells;
 	delete[] lattice_point_element;
+	delete[] graft_presence;
 
 	delete[] Young_modulus;
 	delete[] Poison_ratio;
