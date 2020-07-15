@@ -1,5 +1,5 @@
-#include <cstdlib>        
-#include <iostream>
+#include <cstdlib>        //Includes pseudo-random number generation
+#include <iostream>       //To read and write data from files as input/output streams
 #include <fstream>
 #include <cmath>
 #include <stdio.h>
@@ -10,16 +10,8 @@
 
 using namespace std;
 
-/***********************************************************************
-	Seeds the cells in the lattice initially:
-		- in the marrow cavity (30% position)
-		- along the periosteum (30% positions)
-		(- optionally in the graft)
-***********************************************************************/
-
 void Initialize_lattice(char initial_lattice[LATTICE_X][LATTICE_Y][LATTICE_Z], short initial_age[LATTICE_X][LATTICE_Y][LATTICE_Z])
 {
-    int elem;
     int free_positions;
     int points=0;
     int r1,r2,r3;
@@ -48,63 +40,15 @@ void Initialize_lattice(char initial_lattice[LATTICE_X][LATTICE_Y][LATTICE_Z], s
             {
             	if (initial_lattice[i][j][100-k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio1,2)) { // in marrow cavity and free position
                 	initial_lattice[i][j][100-k]=1; // seed one MSC with age 0
- 					initial_age[i][j][100-k]=0;
+ 					initial_age[i][j][100-k]=1;
  				}
  				if (initial_lattice[i][j][LATTICE_Z-100+k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio1,2)) { // in marrow cavity and free position
-                	initial_lattice[i][j][LATTICE_Z-100+k]=1; // seed one MSC with age 1
+                	initial_lattice[i][j][LATTICE_Z-100+k]=1; // seed one MSC with age 0
  					initial_age[i][j][LATTICE_Z-100+k]=1;
  				}
  			}
  		}
  	}
- 	
-    //*********************************************************************
-    //          Seeding of osteoblasts: bone graft in scaffold pores
-    //********************************************************************
- 	
-/* 	radio1 = 50; // inner radius of scaffold
-	radio2 = 100;
-	
-	free_positions = 0;
-	osteoblasts_to_seed = 0;
-	seeded_cells=0;
-	
-	int shift = 100;
-	
-	// Count number of free positions
-	for (i=0;i<LATTICE_X;i++)
-    {
-        for (j=0;j<LATTICE_Y;j++)
-        {
-            for (k=shift;k<LATTICE_Z-shift;k++) 
-            {
-            	if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2)
-					&& pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)>pow(radio1,2)) { 
-                	free_positions += 1;
- 				}
- 			}
- 		}
- 	} 
- 	osteoblasts_to_seed = free_positions/6;
- 	
- 	// Seed osteoblasts
- 	while (seeded_cells<osteoblasts_to_seed) {
- 		r1 = rand()%201;
- 		r2 = rand()%201;
- 		r3 = rand()%401;
- 		
- 		i = 2*shift+r1;
- 		j = 2*shift+r2;
- 		k = shift+r3;
- 		
- 		if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2)
-			&& pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)>pow(radio1,2)) {
-			initial_lattice[i][j][k] = 2;
-			initial_age[i][j][k]=1;
-			seeded_cells += 1;
-		}
-			
-	}*/
 	  
     //**********************
     //    Periosteum: no need to check for scaffold presence
@@ -139,32 +83,35 @@ void Initialize_lattice(char initial_lattice[LATTICE_X][LATTICE_Y][LATTICE_Z], s
     }
     
     //*********************************************************************
-    //          Seeding of MSCs: in the graft
+    //          Seeding of MSCs: in the graft -> with artificial age to spot them later
     //********************************************************************
+ 	radio1 = 50; // scaffold inner radius
  	
-/* 	free_positions=0;
+ 	free_positions=0;
 	for (i=0;i<LATTICE_X;i++) {
         for (j=0;j<LATTICE_Y;j++) {
-            for (k=0;k<LATTICE_Z-200;k++) {
-            	if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2)) { // not scaffold
+            for (k=100;k<LATTICE_Z-100;k++) {
+            	if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2) &&
+					pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)>pow(radio1,2)) { 
             		free_positions+=1;
  				}
  			}
  		}
  	}
  	
- 	int MSCs_to_seed = free_positions/10;
+ 	int MSCs_to_seed = free_positions/1000; // 1% of the graft is occupied by MSCs
 	while (seeded_cells<MSCs_to_seed) {
 		i = nrand(LATTICE_X);
 		j = nrand(LATTICE_Y);
 		r3 = nrand(LATTICE_Z-200);
 		k = 100+r3;
 		
-		if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2)) {
+		if (initial_lattice[i][j][k]==0 && pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)<=pow(radio2,2) &&
+			pow(i-(LATTICE_X-1)/2,2)+pow(j-(LATTICE_Y-1)/2,2)>pow(radio1,2)) {
 			initial_lattice[i][j][k]=1;
-			initial_age[i][j][k]=1;
+			initial_age[i][j][k]=1; // 300 for the low proliferation case; 1 otherwise
 			seeded_cells += 1;
 		}
-	}*/
+	}
       
 }
