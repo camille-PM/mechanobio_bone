@@ -6,11 +6,12 @@
 #include <cmath>
 #include "header.h"
 
-// For a new model: 
-//       header.h: LATTICE_X, LATTICE_Y, LATTICE_Z, NUMBER_ELEMS, NUMBER_NODES, NUMBER_ITERATIONS, NODES_PER_ELEM
-//       Initial cell seeding (Initialize_lattice.cpp, main.cpp)
-//       Update_model.cpp: loads & BCs + file names; min_elem
-//       Read_stimulus: file name
+// For a new model: adapt LATTICE_X, LATTICE_Y, LATTICE_Z, NUMBER_ELEMS, NUMBER_NODES, NUMBER_ITERATIONS, NODES_PER_ELEM (header.h); min_elem_callus (update_model.cpp)
+//       Initial cell seeding (Initialize_lattice.cpp and main.cpp)
+//       Update_model.cpp : last lines with loads & BCs + file names (in Read_stimulus as well)
+// 		 Calculate_lattice.cpp : adapt Global_min and Global_max if necessary (if boundaries different between FE model and 3D lattice)
+// 		 Cell_proliferation.cpp & cell_differentiation.cpp : possibly adaptations to remove some elements from the proliferation process / for different mechanoregulation levels
+//		 Write_raw_lattice_file: ROI written in raw file (if not full lattice)
 
 using namespace std;
 
@@ -148,13 +149,16 @@ int main()
                                                Proliferation
         *****************************************************************************************/   
         cout<<"Cell proliferation"<<endl;
-        Cell_proliferation(lattice,age_cells,element_local_min,element_local_max,lattice_point_element,stimulus); 
+        Cell_proliferation(lattice,age_cells,element_local_min,element_local_max,lattice_point_element,stimulus,iteration); 
             
         /**************************************************************************************
                                                Migration
         *****************************************************************************************/   
-        cout<<"Cell migration"<<endl;
-        Cell_migration(lattice,age_cells,lattice_point_element);
+        if (iteration<ACTIVITY_MAX)
+        {
+			cout<<"Cell migration"<<endl;
+        	Cell_migration(lattice,age_cells,lattice_point_element);
+        }
         
         /**************************************************************************************
                                      Write lattice content into files
